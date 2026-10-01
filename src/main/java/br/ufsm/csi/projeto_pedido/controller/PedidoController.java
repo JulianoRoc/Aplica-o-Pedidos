@@ -1,14 +1,15 @@
 package br.ufsm.csi.projeto_pedido.controller;
 
 import br.ufsm.csi.projeto_pedido.model.pedido.Pedido;
+import br.ufsm.csi.projeto_pedido.model.pedido.StatusPedido;
 import br.ufsm.csi.projeto_pedido.service.PedidoService;
 import br.ufsm.csi.projeto_pedido.serviceJRV.PedidoJdvService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.Map;
 
+import java.util.Map;
 import java.util.List;
 
 @RestController
@@ -39,11 +40,10 @@ public class PedidoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Pedido> buscarPorId(
-            @PathVariable Long id) {
+    public ResponseEntity<Pedido> buscarPorId(@PathVariable Long id) {
 
         return ResponseEntity.ok(
-                pedidoService.buscarPorId(id)
+                pedidoService.buscarCompletoPorId(id)
         );
     }
 
@@ -79,5 +79,73 @@ public class PedidoController {
     public ResponseEntity<Void> excluirJdv(@PathVariable Long id) {
         pedidoJdvService.excluir(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/jdv")
+    public ResponseEntity<String> listarJdv() {
+        return ResponseEntity.ok(
+                pedidoJdvService.listar()
+        );
+    }
+
+    @PostMapping("/jdv/lote")
+    public ResponseEntity<Void> inserirLote(
+            @RequestBody List<String> jsons) {
+
+        pedidoJdvService.inserirEmLote(jsons);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/jdv/lote")
+    public ResponseEntity<Void> excluirLote(
+            @RequestBody List<Long> ids) {
+
+        pedidoJdvService.excluirEmLote(ids);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Pedido> atualizarStatus(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body) {
+
+        StatusPedido status = StatusPedido.valueOf(body.get("status"));
+
+        return ResponseEntity.ok(
+                pedidoService.atualizarStatus(id, status)
+        );
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
+        pedidoService.excluir(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/lote")
+    public ResponseEntity<Void> inserirEmLote(
+            @RequestParam int quantidade) {
+
+        pedidoService.inserirEmLote(quantidade);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/lote")
+    public ResponseEntity<Void> excluirEmLote(
+            @RequestParam int quantidade) {
+
+        pedidoService.excluirEmLote(quantidade);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/completo/{id}")
+    public ResponseEntity<Pedido> buscarCompleto(@PathVariable Long id) {
+        return ResponseEntity.ok(
+                pedidoService.buscarCompletoPorId(id)
+        );
     }
 }
